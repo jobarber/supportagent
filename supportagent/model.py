@@ -5,6 +5,7 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 
 class Model(nn.Module):
     def __init__(self):
+        super(Model, self).__init__()
         self.model = AutoModelForCausalLM.from_pretrained('microsoft/DialoGPT-medium')
         self.tokenizer = AutoTokenizer.from_pretrained('microsoft/DialoGPT-medium')
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
