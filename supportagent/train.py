@@ -7,30 +7,22 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from collections import Counter
+from datasets import ZendeskDataset
 from pprint import pprint
 from torch.utils.data import Dataset, DataLoader, IterableDataset
 from transformers import GPT2LMHeadModel, GPT2Tokenizer, AutoModelForCausalLM, AutoTokenizer
 from zenpy import Zenpy
 from zenpy.lib.api_objects import Comment, Ticket
 from zenpy.lib.exception import RecordNotFoundException
-from datasets import ZendeskDataset
+from model import Model
 
 
-
-def train(epochs):
+def train(model, epochs=3):
     df = pd.read_csv('zendesktickets.csv')
     df = df.sample(frac=1.)
-    df.head(20)
-
-    model = AutoModelForCausalLM.from_pretrained('microsoft/DialoGPT-medium')
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-
-    model = model.to(device)
 
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.AdamW(model.parameters(), lr=1e-5)
-
 
     ds = ZendeskDataset(df)
 
@@ -51,6 +43,9 @@ def train(epochs):
             loss.backward()
             optimizer.step()
             print(f'Epoch {epoch} Batch {b} Running Loss {running_loss / (b + 1)}')
+        torch.save(model.state_dict(), f'Model_{epoch}_{running_loss / (b + 1):.2f}')
+
 
 if __name__ == "__main__":
-    train(epochs=3)
+    zendesk_model = Model()
+    train(zendesk_model, epochs=3)
