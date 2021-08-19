@@ -32,8 +32,8 @@ def train(model, epochs=3):
         running_loss = 0.
         for b, batch in enumerate(dataloader):
             X, y = batch
-            X = torch.tensor(X).to(device)
-            y = torch.tensor(y).to(device)
+            X = torch.tensor(X).to(model.device)
+            y = torch.tensor(y).to(model.device)
 
             output = model(X)
             next_token = output.logits[-1, :]
